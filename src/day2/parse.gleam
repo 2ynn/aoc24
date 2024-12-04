@@ -6,7 +6,7 @@ import simplifile
 const separator: String = " "
 
 fn to_int(string: String) -> Int {
-  let assert Ok(integer) = string |> int.parse
+  let assert Ok(integer) = int.parse(string)
   integer
 }
 

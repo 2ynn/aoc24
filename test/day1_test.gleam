@@ -2,7 +2,7 @@ import day1/day1.{part0, part1, part2}
 import gleeunit/should
 
 pub fn day1_test() {
-  let #(sorted1, sorted2) = part0("test/day1_test.txt")
+  let #(sorted1, sorted2) = part0("data/day1/test.txt")
 
   should.equal(sorted1, [1, 2, 3, 3, 3, 4])
   should.equal(sorted2, [3, 3, 3, 4, 5, 9])

@@ -3,7 +3,7 @@ import day2/parse.{parse_file}
 import gleeunit/should
 
 pub fn day2_test() {
-  let reports = parse_file("test/day2_test.txt")
+  let reports = parse_file("data/day2/test.txt")
   let safe = part1(reports)
   let tolerable = part2(reports)
 
