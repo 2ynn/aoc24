@@ -14,9 +14,9 @@ pub fn day3_test() {
 
   let f3 = "data/day3/test3.txt"
   should.equal(parse_part2(f3) |> list.length, 4)
-  should.equal(day3.part2(f3), 91)
+  should.equal(day3.part2(f3), 75)
 
   let f4 = "data/day3/test4.txt"
-  should.equal(parse_part2(f4) |> list.length, 6)
-  should.equal(day3.part2(f4), 23)
+  should.equal(parse_part2(f4) |> list.length, 5)
+  should.equal(day3.part2(f4), 22)
 }

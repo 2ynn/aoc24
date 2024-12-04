@@ -1,11 +1,8 @@
 import gleam/int
-
-import gleam/io
+// import gleam/io
 import gleam/list
-import gleam/option.{type Option, Some}
 import gleam/regexp
-
-// import gleam/result
+import gleam/option.{type Option, Some}
 import gleam/string
 import simplifile
 
@@ -14,16 +11,13 @@ pub const regex1 = "mul\\(([0-9]{1,3}),([0-9]{1,3})\\)"
 fn regex2() -> List(regexp.Regexp) {
   let do = "do\\(\\)"
   let dont = "don't\\(\\)"
+  let no_dont = fmt("((?!{0}).)", [dont])
 
-  let no_do = fmt("((?!{0}).)", [do])
-  let _no_dont = fmt("((?!{0}).)", [dont])
-  let no_do_or_dont = fmt("((?!(?:{0}|{1})).)", [do, dont])
-
-  ["{0}({2}+?)$", "{0}({2}+?){1}", "^(({3})+?){1}", "{1}({2}+?){1}"]
+  ["(?:^|{0})({2}+?)(?:{1}|$)"]
   |> list.map(fn(r) {
     let assert Ok(re) =
-      fmt(r, [do, dont, no_do_or_dont, no_do])
-      |> io.debug
+      fmt(r, [do, dont, no_dont])
+      // |> io.debug
       |> regexp.from_string
     re
   })
@@ -71,8 +65,8 @@ pub fn parse_part1(filepath: String) -> List(#(Int, Int)) {
 }
 
 fn parse_chunk(re: regexp.Regexp, chunk: regexp.Match) -> List(#(Int, Int)) {
-  io.debug("__________________________________________________")
-  io.debug(chunk)
+  // io.debug("____________________________")
+  // io.debug(chunk)
   regexp.scan(re, chunk.content) |> list.map(parse_match)
 }
 
