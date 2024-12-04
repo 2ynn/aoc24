@@ -1,15 +1,49 @@
 import gleam/int
 
-// import gleam/io
+import gleam/io
 import gleam/list
 import gleam/option.{type Option, Some}
 import gleam/regexp
+
+// import gleam/result
+import gleam/string
 import simplifile
 
 pub const regex1 = "mul\\(([0-9]{1,3}),([0-9]{1,3})\\)"
 
-// TODO: only the most recent do() or don't() applies !
-pub const regex2 = "don't\\(\\).*?(?:do\\(\\)|$)"
+fn regex2() -> List(regexp.Regexp) {
+  let do = "do\\(\\)"
+  let dont = "don't\\(\\)"
+
+  let no_do = fmt("((?!{0}).)", [do])
+  let _no_dont = fmt("((?!{0}).)", [dont])
+  let no_do_or_dont = fmt("((?!(?:{0}|{1})).)", [do, dont])
+
+  ["{0}({2}+?)$", "{0}({2}+?){1}", "^(({3})+?){1}", "{1}({2}+?){1}"]
+  |> list.map(fn(r) {
+    let assert Ok(re) =
+      fmt(r, [do, dont, no_do_or_dont, no_do])
+      |> io.debug
+      |> regexp.from_string
+    re
+  })
+}
+
+/// Basic string interpolation
+fn fmt(string: String, substitutes: List(String)) -> String {
+  case substitutes {
+    [] -> string
+    subs ->
+      list.index_fold(
+        subs,
+        string,
+        fn(string: String, item: String, index: Int) {
+          let pattern = "{" <> int.to_string(index) <> "}"
+          string.replace(string, pattern, item)
+        },
+      )
+  }
+}
 
 fn parse_submatch(submatch: Option(String)) -> Int {
   case submatch {
@@ -36,18 +70,24 @@ pub fn parse_part1(filepath: String) -> List(#(Int, Int)) {
   }
 }
 
-fn parse_chunk(re: regexp.Regexp, chunk: String) -> List(#(Int, Int)) {
-  // io.debug("__________________________________________________")
-  // io.debug(chunk)
-  regexp.scan(re, chunk) |> list.map(parse_match)
+fn parse_chunk(re: regexp.Regexp, chunk: regexp.Match) -> List(#(Int, Int)) {
+  io.debug("__________________________________________________")
+  io.debug(chunk)
+  regexp.scan(re, chunk.content) |> list.map(parse_match)
 }
 
 pub fn parse_part2(filepath: String) -> List(#(Int, Int)) {
-  let assert Ok(re1) = regexp.from_string(regex1)
-  let assert Ok(re2) = regexp.from_string(regex2)
-
-  case simplifile.read(from: filepath) {
-    Ok(text) -> regexp.split(re2, text) |> list.flat_map(parse_chunk(re1, _))
+  let input = case simplifile.read(from: filepath) {
+    Ok(text) -> text
     Error(_) -> panic as { "Can't open " <> filepath }
   }
+
+  let assert Ok(re1) = regexp.from_string(regex1)
+
+  let parse = fn(re, text) {
+    regexp.scan(re, text)
+    |> list.flat_map(parse_chunk(re1, _))
+  }
+
+  regex2() |> list.flat_map(parse(_, input))
 }
