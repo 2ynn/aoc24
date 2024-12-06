@@ -12,4 +12,5 @@ pub fn day5_test() {
   should.equal(list.length(updates), 6)
 
   should.equal(day5.part1(updates, ruleset), 143)
+  should.equal(day5.part2(updates, ruleset), 123)
 }

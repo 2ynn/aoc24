@@ -5,16 +5,23 @@ import gleam/dict.{get}
 import gleam/int.{to_string}
 import gleam/io
 import gleam/list
+import gleam/order
 
 pub fn run() {
   let ruleset = parse_ruleset("data/day5/input/rules.txt")
   let updates = parse_updates("data/day5/input/updates.txt")
 
   io.debug(
-    "Added mid numbers (part1): " <> { part1(updates, ruleset) |> to_string },
+    "Correct mid numbers (part1): " <> { part1(updates, ruleset) |> to_string },
+  )
+
+  io.debug(
+    "Reordered mid numbers (part2): "
+    <> { part2(updates, ruleset) |> to_string },
   )
 }
 
+// PART 1
 fn get_other_pages(in update: Update, other_than page: Page) -> List(Page) {
   update |> list.filter(fn(p) { p != page })
 }
@@ -66,6 +73,52 @@ pub fn part1(updates: Updates, with ruleset: RuleSet) -> Int {
         mid
       }
       False -> 0
+    }
+  })
+  |> list.fold(0, int.add)
+}
+
+// PART 2
+fn compare(
+  page: Page,
+  against other: Page,
+  with ruleset: RuleSet,
+) -> order.Order {
+  case get(ruleset, page.1) {
+    Error(_) -> {
+      io.debug("No ruleset for " <> page.1 |> to_string)
+      order.Eq
+    }
+    Ok(rules) -> {
+      case get(rules, other.1) {
+        Error(_) -> order.Eq
+        Ok(predicate) ->
+          case predicate(0, 1) {
+            True -> order.Lt
+            False -> order.Gt
+          }
+      }
+    }
+  }
+}
+
+fn fix_order(update: Update, ruleset: RuleSet) -> Update {
+  update
+  |> list.sort(fn(a, b) { compare(a, b, ruleset) })
+  |> list.index_map(fn(page, index) { #(index, page.1) })
+}
+
+pub fn part2(updates: Updates, with ruleset: RuleSet) -> Int {
+  updates
+  |> list.map(fn(update) {
+    case check_update(update, ruleset) {
+      True -> 0
+      False -> {
+        let reordered = fix_order(update, ruleset)
+        let assert Ok(mid_index) = int.divide(list.length(reordered), 2)
+        let assert Ok(mid_value) = list.key_find(reordered, mid_index)
+        mid_value
+      }
     }
   })
   |> list.fold(0, int.add)
