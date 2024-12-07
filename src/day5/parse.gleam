@@ -2,13 +2,13 @@ import day5/types.{
   type Index, type Page, type PageNumber, type Pages, type Predicate,
   type RuleSet, type Updates,
 }
-import day5/utils.{panic_if}
 import gleam/dict.{get, has_key, insert}
 import gleam/int
 import gleam/list
 import gleam/order
 import gleam/string
 import simplifile
+import utils.{panic_if}
 
 fn before(i: Index, j: Index) -> Bool {
   int.compare(i, j) == order.Lt
