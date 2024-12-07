@@ -33,5 +33,9 @@ pub type Guard {
   Guard(pos: Position, dir: Direction)
 }
 
+pub type Path = List(Guard)
+
 pub type Trail =
   Dict(String, List(Guard))
+
+pub type Blocker = Position
